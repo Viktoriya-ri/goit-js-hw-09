@@ -1,10 +1,21 @@
-import Notiflix from "notiflix";
+import Notiflix, { Notify } from "notiflix";
 // Описаний в документації
 import flatpickr from "flatpickr";
 // Додатковий імпорт стилів
 import "flatpickr/dist/flatpickr.min.css";
 
-const 
+const getRef = selector => document.querySelector(selector);
+const inputDatePickerRef = getRef('#datetime-picker');
+const btnStartRef = getRef('[data-start]');
+const daysRef = getRef('[data-days]');
+const hoursRef = getRef('[data-hours]');
+const minutesRef = getRef('[data-minutes]');
+const secondsRef = getRef('[data-seconds]');
+
+let timeDifference = 0;
+let timerId = null;
+let formatDate = null;
+
 const options = {
   enableTime: true,
   time_24hr: true,
@@ -12,8 +23,28 @@ const options = {
   minuteIncrement: 1,
   onClose(selectedDates) {
     console.log(selectedDates[0]);
+    currentDifferenceDate(selectedDates[0]);
   },
 };
+
+btnStartRef.setAttribute('disabled', true);
+
+flatpickr(inputDatePickerRef, options);
+
+btnStartRef.addEventListener('click', onBtnStart);
+
+window.addEventListener('keydown', evt => {
+  if (evt.code === 'Escape' && timerId) {
+    clearInterval(timerId);
+    inputDatePickerRef.removeAttribute('disabled');
+    btnStartRef.setAttribute('disabled'.true);
+
+    secondsRef.textContent = '00';
+    minutesRef.textContent = '00';
+    hoursRef.textContent = '00';
+    daysRef.textContent = '00';
+  }
+});
 
 function convertMs(ms) {
   // Number of milliseconds per unit of time
@@ -32,4 +63,34 @@ function convertMs(ms) {
   const seconds = Math.floor((((ms % day) % hour) % minute) / second);
 
   return { days, hours, minutes, seconds };
+}
+
+function onBtnStart() {
+  timerId = setInterval(startTimer, 1000);
+}
+
+function currentDifferenceDate(selectedDates) {
+  const currentDate = Date.now();
+
+  if (selectedDates < currentDate) {
+    btnStartRef.setAttribute('disabled', true);
+    return Notify.failure('please choose a date the future');
+  }
+
+  timeDifference = selectedDates.getTime() - currentDate;
+  formatDate = convertMs(timeDifference);
+
+  renderDate(formatDate);
+  btnStartRef.removeAttribute('disabled');
+}
+
+
+
+function startTimer() {
+  btnStartRef.setAttribute('disabled', true);
+  inputDatePickerRef.setAttribute('disabled', true);
+
+  timeDifference -= 1000;
+
+  if()
 }
