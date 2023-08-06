@@ -11,17 +11,17 @@ function onSubmitForm(evt) {
   if (delay.value < 0 || step.value < 0 || amount.value < 0) {
     Notiflix.Notify.warning(`Please enter a positive number`);
   } else {
-    for (let i = 0; i < amount.value; i++){
+    for (let i = 0; i < amount.value; i++) {
       let position = i + 1;
       const delays = Number(delay.value) + step.value * i;
 
-      createPromise(2, 1500)
-  .then(({ position, delay }) => {
-    Notiflix.Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
-  })
-  .catch(({ position, delay }) => {
-    Notiflix.Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
-  });
+      createPromise(position, delays)
+        .then(({ position, delay }) => {
+          Notiflix.Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
+        })
+        .catch(({ position, delay }) => {
+          Notiflix.Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
+        });
     }
   }
   evt.currentTarget.reset();
@@ -30,16 +30,13 @@ function onSubmitForm(evt) {
 function createPromise(position, delay) {
   return new Promise((res, rej) => {
     const shouldResolve = Math.random() > 0.3;
+
     setTimeout(() => {
       if (shouldResolve) {
-        // Fulfill
         res({ position, delay });
       } else {
-        // Reject
         rej({ position, delay });
       }
     }, delay);
-
   });
-
 }
